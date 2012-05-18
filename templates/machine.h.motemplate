@@ -52,23 +52,42 @@ extern const struct <$managedObjectClassName$>FetchedProperties {<$foreach Fetch
 //- (BOOL)validate<$Attribute.name.initialCapitalString$>:(id*)value_ error:(NSError**)error_;
 <$endif$>
 <$endforeach do$>
+
 <$foreach Relationship noninheritedRelationships do$>
-<$if Relationship.isToMany$>
-<$if TemplateVar.arc$>
-@property (nonatomic, strong) <$Relationship.immutableCollectionClassName$> *<$Relationship.name$>;
-<$else$>
-@property (nonatomic, retain) <$Relationship.immutableCollectionClassName$> *<$Relationship.name$>;
-<$endif$>
-- (<$Relationship.mutableCollectionClassName$>*)<$Relationship.name$>Set;
-<$else$>
-<$if TemplateVar.arc$>
-@property (nonatomic, strong) <$Relationship.destinationEntity.managedObjectClassName$> *<$Relationship.name$>;
-<$else$>
-@property (nonatomic, retain) <$Relationship.destinationEntity.managedObjectClassName$> *<$Relationship.name$>;
-<$endif$>
-//- (BOOL)validate<$Relationship.name.initialCapitalString$>:(id*)value_ error:(NSError**)error_;
-<$endif$>
+	<$if Relationship.isToMany$>
+		<$if TemplateVar.arc$>
+			<$if Relationship.isReadonly$>
+				@property (nonatomic, strong, readonly) <$Relationship.immutableCollectionClassName$> *<$Relationship.name$>;
+			<$else$>
+				@property (nonatomic, strong) <$Relationship.immutableCollectionClassName$> *<$Relationship.name$>;
+			<$endif$>
+		<$else$>
+			<$if Relationship.isReadonly$>
+				@property (nonatomic, retain, readonly) <$Relationship.immutableCollectionClassName$> *<$Relationship.name$>;
+			<$else$>
+				@property (nonatomic, retain) <$Relationship.immutableCollectionClassName$> *<$Relationship.name$>;
+			<$endif$>
+		<$endif$>	
+	- (<$Relationship.mutableCollectionClassName$>*)<$Relationship.name$>Set;
+	<$else$>
+		<$if TemplateVar.arc$>
+			<$if Relationship.isReadonly$>
+				@property (nonatomic, strong, readonly) <$Relationship.destinationEntity.managedObjectClassName$> *<$Relationship.name$>;
+			<$else$>
+				@property (nonatomic, strong) <$Relationship.destinationEntity.managedObjectClassName$> *<$Relationship.name$>;
+			<$endif$>
+		<$else$>
+			<$if Relationship.isReadonly$>
+				@property (nonatomic, retain, readonly) <$Relationship.destinationEntity.managedObjectClassName$> *<$Relationship.name$>;
+			<$else$>
+				@property (nonatomic, retain) <$Relationship.destinationEntity.managedObjectClassName$> *<$Relationship.name$>;
+			<$endif$>
+		<$endif$>
+	//- (BOOL)validate<$Relationship.name.initialCapitalString$>:(id*)value_ error:(NSError**)error_;
+	<$endif$>
 <$endforeach do$>
+
+
 <$foreach FetchRequest prettyFetchRequests do$>
 <$if FetchRequest.singleResult$>
 + (id)fetch<$FetchRequest.name.initialCapitalString$>:(NSManagedObjectContext*)moc_ <$foreach Binding FetchRequest.bindings do2$><$Binding.name$>:(<$Binding.type$>)<$Binding.name$>_ <$endforeach do2$>;
